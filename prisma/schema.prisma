@@ -12,3 +12,58 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  UserID      Int        @id @default(autoincrement())
+  Username    String     @unique
+  Password    String
+  Email       String     @unique
+  Pfp         Bytes?
+  Description String?
+  Sessions    Session[]
+  Follows     Followed[]
+  Playlists   Playlist[]
+}
+
+model Session {
+  SessionID Int  @id @default(autoincrement())
+  User      User @relation(fields: [UserID], references: [UserID])
+  UserID    Int
+  TrackID   Int?
+  Timestamp Int?
+}
+
+model Followed {
+  FollowedID Int       @id @default(autoincrement())
+  User       User      @relation(fields: [UserID], references: [UserID])
+  UserID     Int
+  Playlist   Playlist? @relation(fields: [PlaylistID], references: [PlaylistID])
+  PlaylistID Int?
+  TypeID     Int?
+  Type       Type
+}
+
+enum Type {
+  Playlist
+  Album
+  Artist
+}
+
+model Playlist {
+  PlaylistID    Int        @id @default(autoincrement())
+  PlaylistName  String
+  Owner         User       @relation(fields: [OwnerID], references: [UserID])
+  OwnerID       Int
+  PlaylistCover Bytes?
+  Description   String?
+  Private       Boolean    @default(false)
+  Follows       Followed[]
+  Tracks        Track[]
+}
+
+model Track {
+  TrackID    Int      @id @default(autoincrement())
+  SongID     Int
+  Playlist   Playlist @relation(fields: [PlaylistID], references: [PlaylistID])
+  PlaylistID Int
+}
