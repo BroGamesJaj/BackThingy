@@ -1,4 +1,4 @@
-import { Controller, HttpCode, HttpStatus, Post, Body, UseGuards, Req, Get } from '@nestjs/common';
+import { Controller, HttpCode, HttpStatus, Post, Body, UseGuards, Req, Get, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { signInDto } from './dto/signIn.dto';
 import { AuthGuard } from './auth.guard';
@@ -10,7 +10,11 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     @Post('login')
     signIn(@Body() signInDto: signInDto) {
-        return this.authService.signIn(signInDto);
+        try{
+            return this.authService.signIn(signInDto);
+        }catch {
+            throw new UnauthorizedException('Invalid email or password');
+        }
     }
 
     @UseGuards(AuthGuard)
