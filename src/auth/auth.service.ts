@@ -10,18 +10,22 @@ export class AuthService {
     constructor(
         private usersService: UsersService,
         private jwtService: JwtService,
-    ) {}
+    ) { }
 
     async signIn(signInDto: signInDto): Promise<any> {
-        const user = await this.usersService.findOne(signInDto.Email);
-        if(await argon2.verify(user.Password, signInDto.Password)){
-            const payload = { sub: user.UserID, email: user.Email, userName: user.Username }
+        try {
+            const user = await this.usersService.findOne(signInDto.Email);
+            if (await argon2.verify(user.Password, signInDto.Password)) {
+                const payload = { sub: user.UserID, email: user.Email, userName: user.Username, Description: user.Description }
 
-            const accessToken = this.jwtService.sign(payload);
+                const accessToken = await this.jwtService.signAsync(payload);
 
-            return accessToken;
-        }else{
-            throw new UnauthorizedException();
+                return { accessToken };
+            } else {
+                throw new UnauthorizedException();
+            }
+        }catch(e){
+            throw new UnauthorizedException('Invalid credentials');
         }
     }
 }
