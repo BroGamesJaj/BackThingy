@@ -22,12 +22,16 @@ describe('AuthController', () => {
     getProfile: jest.fn(),
   };
 
+  const mocKUsersService = {
+    findUserById: jest.fn(),
+  }
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
         { provide: AuthService, useValue: mockAuthService },
-        { provide: UsersService, useValue: {} },
+        { provide: UsersService, useValue: mocKUsersService },
         { provide: JwtService, useValue: mockJwtService },
         { provide: ConfigService, useValue: mockConfigService }
       ],
