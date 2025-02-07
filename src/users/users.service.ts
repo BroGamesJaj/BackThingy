@@ -64,11 +64,13 @@ export class UsersService {
     return user;
   }
 
-  async findPfpForUser(id: number) {
-    try{
-      return await this.db.user.findUnique({
+  async findUserById(id: number) {
+    try {
+      const user = await this.db.user.findUnique({
         where: { UserID: id }
       })
+      if (user) return user;
+      return undefined;
     } catch { return undefined }
   }
 

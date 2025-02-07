@@ -26,7 +26,7 @@ export class UsersController {
   @UseGuards(AuthGuard)
   @Get('/pfp/:id')
   async findPfp(@Param('id') id: string){
-    const user = await this.usersService.findPfpForUser(+id);
+    const user = await this.usersService.findUserById(+id);
     if(!user) throw new NotFoundException(`No user with #${id} found`);
     return { Pfp: user.Pfp };
   }
