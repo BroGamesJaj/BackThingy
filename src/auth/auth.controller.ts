@@ -2,10 +2,14 @@ import { Controller, HttpCode, HttpStatus, Post, Body, UseGuards, Req, Get, Unau
 import { AuthService } from './auth.service';
 import { signInDto } from './dto/signIn.dto';
 import { AuthGuard } from './auth.guard';
+import { UsersService } from '../users/users.service';
 
 @Controller('auth')
 export class AuthController {
-    constructor(private authService: AuthService) { }
+    constructor(
+        private authService: AuthService,
+        private usersService: UsersService
+    ) { }
 
     @HttpCode(HttpStatus.OK)
     @Post('login')
@@ -19,8 +23,9 @@ export class AuthController {
 
     @UseGuards(AuthGuard)
     @Get('profile')
-    getProfile(@Req() req){
-        console.log(req.user);
-        return req.user;
+    async getProfile(@Req() req){
+        const user = await this.usersService.findUserById(req.user.sub);
+        delete user.Password;
+        return user;
     }
 }
