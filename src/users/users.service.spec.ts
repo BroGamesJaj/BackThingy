@@ -17,12 +17,27 @@ describe('UsersService', () => {
 
   const mockUser = {
     UserID: 1,
-    email: 'testuser@example.com',
-    username: 'testuser',
-    password: '$argon2i$v=19$m=65536,t=3,p=4$...encryptedPassword...',
-    profilePicture: Buffer.from('mockProfilePicture'),
-    description: 'This is a test user description',
-  };
+    Name: "John Doe",
+    Email: "johndoe@example.com",
+    Playlists: [
+      {
+        PlaylistID: 101,
+        PlaylistName: "Chill Vibes",
+        OwnerID: 1,
+        PlaylistCover: null,
+        Description: "Relaxing songs to unwind",
+        Private: false,
+        Follows: [],
+        Tracks: [
+          {
+            TrackID: 1001,
+            SongID: 501,
+            PlaylistID: 101,
+          },
+        ],
+      },
+    ],
+  };  
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -40,7 +55,7 @@ describe('UsersService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('findPfpForUser', () => {
+  describe('findUserById', () => {
     it('should return user data including profile picture if found', async () => {
       mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
 
@@ -48,6 +63,9 @@ describe('UsersService', () => {
       expect(result).toEqual(mockUser);
       expect(prisma.user.findUnique).toHaveBeenCalledWith({
         where: { UserID: 1 },
+        include: { Playlists: {
+          include: { Tracks: true }
+        } }
       });
     });
 
