@@ -66,4 +66,5 @@ model Track {
   SongID     Int
   Playlist   Playlist @relation(fields: [PlaylistID], references: [PlaylistID])
   PlaylistID Int
+  @@unique([SongID, PlaylistID])
 }

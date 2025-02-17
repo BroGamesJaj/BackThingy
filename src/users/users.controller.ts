@@ -1,8 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ConflictException, NotFoundException, UseGuards, Req, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ConflictException, NotFoundException, UseGuards, Req, ForbiddenException, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from '../auth/auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Express } from 'express';
 
 @Controller('users')
 export class UsersController {
@@ -21,6 +23,22 @@ export class UsersController {
   @Get()
   findAll() {
     return this.usersService.findAll();
+  }
+
+  @Get('/other/:id')
+  async findOutsideUser(@Param('id') id: string){
+    const user = await this.usersService.findOutsideUser(+id);
+    if(!user) throw new NotFoundException('No user found');
+    return user;
+  }
+
+  @Patch('pic/:id')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(@UploadedFile() file: Express.Multer.File, @Param('id') id: string) {
+    console.log(file);
+    const { buffer, originalname, mimetype } = file;
+
+    return this.usersService.handleFileUpload(buffer, originalname, mimetype, +id);
   }
 
   @UseGuards(AuthGuard)

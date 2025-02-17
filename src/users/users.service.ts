@@ -2,6 +2,7 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma.service';
+import { createWriteStream } from 'fs';
 import * as argon2 from 'argon2';
 
 @Injectable()
@@ -64,14 +65,50 @@ export class UsersService {
     return user;
   }
 
+  async findOutsideUser(id: number) {
+    try {
+      const user = await this.db.user.findUnique({
+        where: { UserID: id },
+        select: {
+          Username: true,
+          Pfp: true,
+          Description: true,
+          Playlists: {
+            where: { Private: false }
+          },
+        }
+      });
+      if (user) return user;
+      return undefined;
+    } catch { return undefined }
+  }
+
   async findUserById(id: number) {
     try {
       const user = await this.db.user.findUnique({
-        where: { UserID: id }
+        where: { UserID: id },
+        include: { Playlists: {
+          include: { Tracks: true }
+        } }
       })
       if (user) return user;
       return undefined;
     } catch { return undefined }
+  }
+
+  async handleFileUpload(buffer: Buffer, filename: string, mimeType: string, id: number) {
+
+    console.log(buffer);
+
+    try {
+      return await this.db.user.update({
+        where: { UserID: id },
+        data: {
+          Pfp: buffer,
+        },
+      });
+    } catch { return undefined }
+
   }
 
   async update(id: number, updateUserDto: { Description?: string, Pfp?: Buffer }) {
