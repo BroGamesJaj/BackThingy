@@ -1,4 +1,4 @@
-import { ConflictException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreatePlaylistDto } from './dto/create-playlist.dto';
 import { UpdatePlaylistDto } from './dto/update-playlist.dto';
 import { PrismaService } from '../prisma.service';
@@ -14,12 +14,13 @@ export class PlaylistsService {
     this.db = db;
   }
 
-  create(createPlaylistDto: CreatePlaylistDto, OwnerID: number) {
+  create(createPlaylistDto: CreatePlaylistDto, OwnerID: number, PlaylistCover?: Buffer) {
     return this.db.playlist.create({
       data: {
         ...createPlaylistDto,
         Owner: { connect: { UserID: OwnerID } },
-        PlaylistCover: createPlaylistDto.PlaylistCover? Buffer.from(createPlaylistDto.PlaylistCover): null,
+        PlaylistCover: PlaylistCover ? PlaylistCover : null,
+        Private: createPlaylistDto.Private === "true"? true: false
       }
     });
   }
@@ -30,7 +31,7 @@ export class PlaylistsService {
       include: { Tracks: true }
     });
 
-    if(!playlist) throw new NotFoundException('No playlists found');
+    if (!playlist) throw new NotFoundException('No playlists found');
 
     return playlist;
   }
@@ -41,9 +42,10 @@ export class PlaylistsService {
     if (ids.length === 0) return playlists;
 
     const querry = ids.map((id) => `id[]=${id}`).join('&');
-    const url = `https://api.jamendo.com/v3.0/tracks/?client_id=8b1de417&format=jsonpretty&${querry}`;
+    const url = `https://api.jamendo.com/v3.0/tracks/?client_id=8b1de417&format=jsonpretty&${querry}$limit=${ids.length}`;
+    console.log(url);
 
-    try{
+    try {
       const response = await axios.get(url);
       const tracks = response.data.results;
 
@@ -54,7 +56,7 @@ export class PlaylistsService {
         Tracks: playlist.Tracks.map((track) => trackMap.get(track.SongID) || track)
       }));
 
-    }catch {
+    } catch {
       throw new HttpException('Error fetching tracks', HttpStatus.BAD_GATEWAY);
     }
   }
@@ -63,7 +65,7 @@ export class PlaylistsService {
 
     const playlist = await this.db.playlist.findUnique({
       where: { PlaylistID },
-      include: { 
+      include: {
         Tracks: true,
         Owner: { select: { Username: true } }
       }
@@ -74,9 +76,9 @@ export class PlaylistsService {
     if (ids.length === 0) return playlist;
 
     const querry = ids.map((id) => `id[]=${id}`).join('&');
-    const url = `https://api.jamendo.com/v3.0/tracks/?client_id=8b1de417&format=jsonpretty&${querry}`;
+    const url = `https://api.jamendo.com/v3.0/tracks/?client_id=8b1de417&format=jsonpretty&${querry}&limit=${ids.length}`;
 
-    try{
+    try {
       const response = await axios.get(url);
       const tracks = response.data.results;
 
@@ -89,7 +91,7 @@ export class PlaylistsService {
 
       return newP;
 
-    }catch {
+    } catch {
       throw new HttpException('Error fetching tracks', HttpStatus.BAD_GATEWAY);
     }
   }
@@ -111,7 +113,7 @@ export class PlaylistsService {
       where: { PlaylistID: playlistId, SongID: trackId }
     });
 
-    if(track) throw new ConflictException('Track already in playlist');
+    if (track) throw new ConflictException('Track already in playlist');
 
     return await this.db.track.create({
       data: {
@@ -121,8 +123,38 @@ export class PlaylistsService {
     })
   }
 
+  async addTracksToPlaylists(trackIds: number[], playlistIds: number[], userId: number) {
+    const users = await this.db.playlist.findMany({
+      where: {
+        OwnerID: userId,
+        PlaylistID: { in: playlistIds }
+      },
+      select: { PlaylistID: true }
+    });
+
+    const valid = users.map((o) => o.PlaylistID);
+
+    if (!valid.length) throw new UnauthorizedException('You have not listed playlists that are yours');
+
+    const invalid = playlistIds.filter((id) => !valid.includes(id));
+
+    const trackPlaylistData = trackIds.flatMap(trackId =>
+      valid.map(playlistId => ({
+        SongID: trackId,
+        PlaylistID: playlistId
+      }))
+    );
+
+    await this.db.track.createMany({
+      data: trackPlaylistData,
+      skipDuplicates: true
+    });
+
+    return { valid, invalid };
+  }
+
   async removeTrackFromPlaylist(playlistId: number, trackId: number) {
-     
+
     return await this.db.track.delete({
       where: {
         SongID_PlaylistID: {

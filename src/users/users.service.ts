@@ -98,8 +98,6 @@ export class UsersService {
 
   async handleFileUpload(buffer: Buffer, filename: string, mimeType: string, id: number) {
 
-    console.log(buffer);
-
     try {
       return await this.db.user.update({
         where: { UserID: id },

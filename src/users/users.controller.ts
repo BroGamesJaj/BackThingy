@@ -35,7 +35,6 @@ export class UsersController {
   @Patch('pic/:id')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(@UploadedFile() file: Express.Multer.File, @Param('id') id: string) {
-    console.log(file);
     const { buffer, originalname, mimetype } = file;
 
     return this.usersService.handleFileUpload(buffer, originalname, mimetype, +id);
