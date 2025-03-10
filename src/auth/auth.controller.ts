@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { signInDto } from './dto/signIn.dto';
 import { AuthGuard } from './auth.guard';
 import { UsersService } from '../users/users.service';
+import { RefreshGuard } from './refresh.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -29,12 +30,11 @@ export class AuthController {
         return user;
     }
 
-    @UseGuards(AuthGuard)
+    @UseGuards(RefreshGuard)
     @Get('refresh')
-    async refreshTokens(@Body('refreshToken') refreshToken: string) {
+    async refreshTokens(@Req() req) {
         try {
-            const payload = await this.authService.validateRefreshToken(refreshToken);
-            return this.authService.generateTokens(payload);
+            return this.authService.generateTokens(req.user);
           } catch (e) {
             throw new UnauthorizedException('Invalid refresh token');
           }
