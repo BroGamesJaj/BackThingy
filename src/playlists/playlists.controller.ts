@@ -12,8 +12,8 @@ export class PlaylistsController {
 
   @Post()
   @UseInterceptors(FileInterceptor('PlaylistCover'))
-  create(@UploadedFile() PlaylistCover: Express.Multer.File, @Body() createPlaylistDto: CreatePlaylistDto, @Query('owner') owner: string) {
-    const { buffer, originalname, mimetype } = PlaylistCover;
+  create(@Body() createPlaylistDto: CreatePlaylistDto, @Query('owner') owner: string, @UploadedFile() PlaylistCover?: Express.Multer.File) {
+    const { buffer, originalname, mimetype } = PlaylistCover || {};
 
     return this.playlistsService.create(createPlaylistDto, +owner, buffer);
   }
