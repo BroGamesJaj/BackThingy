@@ -28,4 +28,15 @@ export class AuthController {
         delete user.Password;
         return user;
     }
+
+    @UseGuards(AuthGuard)
+    @Get('refresh')
+    async refreshTokens(@Body('refreshToken') refreshToken: string) {
+        try {
+            const payload = await this.authService.validateRefreshToken(refreshToken);
+            return this.authService.generateTokens(payload);
+          } catch (e) {
+            throw new UnauthorizedException('Invalid refresh token');
+          }
+    }
 }
