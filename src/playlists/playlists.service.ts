@@ -43,7 +43,6 @@ export class PlaylistsService {
 
     const querry = ids.map((id) => `id[]=${id}`).join('&');
     const url = `https://api.jamendo.com/v3.0/tracks/?client_id=8b1de417&format=jsonpretty&${querry}$limit=${ids.length}`;
-    console.log(url);
 
     try {
       const response = await axios.get(url);

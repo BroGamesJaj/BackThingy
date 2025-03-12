@@ -19,7 +19,7 @@ export class AuthService {
             const user = await this.usersService.findOne(signInDto.Email);
             if (await argon2.verify(user.Password, signInDto.Password)) {
                 const payload = { sub: user.UserID, email: user.Email, userName: user.Username }
-
+                
                 return await this.generateTokens(payload);
             } else {
                 throw new UnauthorizedException();
