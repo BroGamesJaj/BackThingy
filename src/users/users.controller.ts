@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ConflictException, NotFoundException, UseGuards, Req, ForbiddenException, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ConflictException, NotFoundException, UseGuards, Req, ForbiddenException, UseInterceptors, UploadedFile, HttpCode } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -32,12 +32,19 @@ export class UsersController {
     return user;
   }
 
+  @UseGuards(AuthGuard)
   @Patch('pic/:id')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(@UploadedFile() file: Express.Multer.File, @Param('id') id: string) {
+  async uploadFile(@UploadedFile() file: Express.Multer.File, @Param('id') id: string, @Req() req) {
+    if(req.user.sub != id){
+      throw new ForbiddenException("You can only change your own profile");
+    }
+
     const { buffer, originalname, mimetype } = file;
 
-    return this.usersService.handleFileUpload(buffer, originalname, mimetype, +id);
+    const user = await this.usersService.handleFileUpload(buffer, originalname, mimetype, +id);
+    delete user.Password;
+    return user;
   }
 
   @UseGuards(AuthGuard)

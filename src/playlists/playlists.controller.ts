@@ -10,9 +10,12 @@ import { Express } from 'express';
 export class PlaylistsController {
   constructor(private readonly playlistsService: PlaylistsService) {}
 
+  @UseGuards(AuthGuard)
   @Post()
   @UseInterceptors(FileInterceptor('PlaylistCover'))
-  create(@Body() createPlaylistDto: CreatePlaylistDto, @Query('owner') owner: string, @UploadedFile() PlaylistCover?: Express.Multer.File) {
+  create(@Body() createPlaylistDto: CreatePlaylistDto, @Query('owner') owner: string, @Req() req, @UploadedFile() PlaylistCover?: Express.Multer.File) {
+    if(req.user.sub != +owner) throw new UnauthorizedException('Stop right there criminal scum! You have violated the law!');
+    
     const { buffer, originalname, mimetype } = PlaylistCover || {};
 
     return this.playlistsService.create(createPlaylistDto, +owner, buffer);
