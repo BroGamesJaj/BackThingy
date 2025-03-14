@@ -165,8 +165,13 @@ export class PlaylistsService {
 
   }
 
-  update(id: number, updatePlaylistDto: UpdatePlaylistDto) {
-    return `This action updates a #${id} playlist`;
+  async update(id: number, updatePlaylistDto: UpdatePlaylistDto) {
+    try{
+      return await this.db.playlist.update({
+        where: { PlaylistID: id },
+        data: updatePlaylistDto
+      })
+    }catch { return undefined }
   }
 
   remove(id: number) {

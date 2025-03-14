@@ -62,7 +62,6 @@ export class UsersController {
     return user;
   }
 
-
   @UseGuards(AuthGuard)
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateUserDto: { Description?: string, Pfp?: Buffer }, @Req() req) {
