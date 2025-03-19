@@ -10,4 +10,8 @@ export class SearchController {
     return this.searchService.findAll(term.trim(), +userId);
   }
 
+  @Get('/playlist')
+  searchPlaylist(@Query('term') term: string, @Query('userId') userId?: string) {
+    return this.searchService.playlistSearch(term.trim(), +userId);
+  }
 }

@@ -11,6 +11,19 @@ export class SearchService {
     this.db = db;
   }
 
+  async playlistSearch(term: string, userId?: number) {
+    const playlist: any = await this.db.$queryRaw`
+    SELECT * FROM playlist 
+    WHERE LOWER(PlaylistName) LIKE LOWER(${`%${term}%`}) 
+      AND Private = false 
+      ${userId ? Prisma.sql`AND OwnerID != ${userId}` : Prisma.empty}
+  `;
+
+    if(playlist.length < 1) throw new NotFoundException(`Couldn't find playlist with the trem "${term}"`);
+
+    return playlist;
+  }
+
   async findAll(term: string, userId?: number) {
     const playlists: any = await this.db.$queryRaw`
     SELECT PlaylistName FROM playlist 
