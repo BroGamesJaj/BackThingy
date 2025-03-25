@@ -169,12 +169,24 @@ export class PlaylistsService {
     try{
       return await this.db.playlist.update({
         where: { PlaylistID: id },
-        data: updatePlaylistDto
+        data: {
+          ...updatePlaylistDto,
+          Private: updatePlaylistDto.Private !== undefined? updatePlaylistDto.Private === "true" : undefined
+        }
       })
     }catch { return undefined }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} playlist`;
+  async remove(id: number, userId: number) {
+
+    const pl = await this.db.playlist.findUnique({
+      where: { PlaylistID: id }
+    })
+
+    if(pl.OwnerID != userId) throw new UnauthorizedException("Stop right there criminal scum! You have violated the law!");
+
+    return await this.db.playlist.delete({
+      where: { PlaylistID: id }
+    });
   }
 }
