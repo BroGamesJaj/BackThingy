@@ -13,15 +13,29 @@ export class SearchService {
 
   async playlistSearch(term: string, userId?: number) {
     const playlist: any = await this.db.$queryRaw`
-    SELECT * FROM playlist 
-    WHERE LOWER(PlaylistName) LIKE LOWER(${`%${term}%`}) 
-      AND Private = false 
-      ${userId ? Prisma.sql`AND OwnerID != ${userId}` : Prisma.empty}
+    SELECT 
+      p.*, 
+      COALESCE(GROUP_CONCAT(
+        CONCAT(
+          '{"TrackID":', t.TrackID, 
+          ',"SongID":', t.SongID, 
+          ',"PlaylistID":', t.PlaylistID, 
+          '}'
+        ) SEPARATOR ','
+      ), '[]') AS Tracks
+    FROM playlist p
+    LEFT JOIN Track t ON p.PlaylistID = t.PlaylistID
+    WHERE LOWER(p.PlaylistName) LIKE LOWER(${`%${term}%`}) 
+      AND p.Private = false 
+      ${userId ? Prisma.sql`AND p.OwnerID != ${userId}` : Prisma.empty}
+    GROUP BY p.PlaylistID;
   `;
-
     if(playlist.length < 1) throw new NotFoundException(`Couldn't find playlist with the trem "${term}"`);
 
-    return playlist;
+    return playlist.map(p => ({
+      ...p,
+      Tracks: p.Tracks !== '[]' ? JSON.parse(`[${p.Tracks}]`) : []
+    }));
   }
 
   async findAll(term: string, userId?: number) {
