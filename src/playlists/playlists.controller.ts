@@ -98,6 +98,7 @@ export class PlaylistsController {
 
     if (updatePlaylistDto.PlaylistName) data.PlaylistName = updatePlaylistDto.PlaylistName;
     if (updatePlaylistDto.Description) data.Description = updatePlaylistDto.Description;
+    if(updatePlaylistDto.Private) data.Private = updatePlaylistDto.Private;
     if (PlaylistCover) {
       const { buffer, originalname, mimetype } = PlaylistCover;
       data.PlaylistCover = buffer;
@@ -114,10 +115,6 @@ export class PlaylistsController {
   @HttpCode(200)
   @Delete(':id')
   async remove(@Param('id') id: string, @Req() req) {
-    try {
-      await this.playlistsService.remove(+id, req.user.sub);
-    } catch {
-      throw new BadRequestException("The requested entity doesn't exist");
-    }
+    await this.playlistsService.remove(+id, req.user.sub);
   }
 }

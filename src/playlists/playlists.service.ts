@@ -1,10 +1,9 @@
-import { ConflictException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreatePlaylistDto } from './dto/create-playlist.dto';
 import { UpdatePlaylistDto } from './dto/update-playlist.dto';
 import { PrismaService } from '../prisma.service';
 import { Playlist } from './entities/playlist.entity';
 import axios from 'axios';
-import { connect } from 'http2';
 
 @Injectable()
 export class PlaylistsService {
@@ -166,6 +165,9 @@ export class PlaylistsService {
   }
 
   async update(id: number, updatePlaylistDto: UpdatePlaylistDto) {
+
+    console.log(updatePlaylistDto);
+
     try{
       return await this.db.playlist.update({
         where: { PlaylistID: id },
@@ -183,6 +185,7 @@ export class PlaylistsService {
       where: { PlaylistID: id }
     })
 
+    if(!pl) throw new BadRequestException("The requested entity does not exist");
     if(pl.OwnerID != userId || pl.PlaylistName == "Liked") throw new UnauthorizedException("Stop right there criminal scum! You have violated the law!");
 
     return await this.db.playlist.delete({
