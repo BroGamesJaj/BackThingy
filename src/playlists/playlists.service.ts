@@ -183,7 +183,7 @@ export class PlaylistsService {
       where: { PlaylistID: id }
     })
 
-    if(pl.OwnerID != userId) throw new UnauthorizedException("Stop right there criminal scum! You have violated the law!");
+    if(pl.OwnerID != userId || pl.PlaylistName == "Liked") throw new UnauthorizedException("Stop right there criminal scum! You have violated the law!");
 
     return await this.db.playlist.delete({
       where: { PlaylistID: id }
