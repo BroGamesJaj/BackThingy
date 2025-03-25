@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, UnauthorizedException, Query, ConflictException, ParseArrayPipe, Res, HttpStatus, ParseIntPipe, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, UnauthorizedException, Query, ConflictException, ParseArrayPipe, Res, HttpStatus, ParseIntPipe, UseInterceptors, UploadedFile, BadRequestException, HttpCode } from '@nestjs/common';
 import { PlaylistsService } from './playlists.service';
 import { CreatePlaylistDto } from './dto/create-playlist.dto';
 import { UpdatePlaylistDto } from './dto/update-playlist.dto';
@@ -110,8 +110,14 @@ export class PlaylistsController {
     return updated;
   }
 
+  @UseGuards(AuthGuard)
+  @HttpCode(200)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.playlistsService.remove(+id);
+  async remove(@Param('id') id: string, @Req() req) {
+    try {
+      await this.playlistsService.remove(+id, req.user.sub);
+    } catch {
+      throw new BadRequestException("The requested entity doesn't exist");
+    }
   }
 }
