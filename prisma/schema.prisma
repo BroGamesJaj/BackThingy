@@ -37,7 +37,7 @@ model Followed {
   FollowedID Int       @id @default(autoincrement())
   User       User      @relation(fields: [UserID], references: [UserID])
   UserID     Int
-  Playlist   Playlist? @relation(fields: [PlaylistID], references: [PlaylistID])
+  Playlist   Playlist? @relation(fields: [PlaylistID], references: [PlaylistID], onDelete: Cascade)
   PlaylistID Int?
   TypeID     Int?
   Type       Type
@@ -64,7 +64,7 @@ model Playlist {
 model Track {
   TrackID    Int      @id @default(autoincrement())
   SongID     Int
-  Playlist   Playlist @relation(fields: [PlaylistID], references: [PlaylistID])
+  Playlist   Playlist @relation(fields: [PlaylistID], references: [PlaylistID], onDelete: Cascade)
   PlaylistID Int
   @@unique([SongID, PlaylistID])
 }
