@@ -10,8 +10,7 @@ export class FollowedController {
   @UseGuards(AuthGuard)
   @Post()
   create(@Body() createFollowedDto: CreateFollowedDto, @Req() req) {
-    if(req.user.sub != createFollowedDto.UserID) throw new UnauthorizedException('Stop right there criminal scum! You have violated the law!');
-    return this.followedService.create(createFollowedDto);
+    return this.followedService.create(createFollowedDto, req.user.sub);
   }
 
   @UseGuards(AuthGuard)
