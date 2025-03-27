@@ -35,7 +35,22 @@ export class FollowedService {
 
   findAll(userId: number) {
     return this.db.followed.findMany({
-      where: { UserID: userId }
+      where: {
+        UserID: userId,
+        OR: [
+          {
+            Type: "Playlist",
+            Playlist: {
+              Private: false,
+            },
+          },
+          {
+            NOT: {
+              Type: "Playlist",
+            },
+          },
+        ],
+      }
     });
   }
 

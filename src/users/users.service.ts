@@ -87,9 +87,12 @@ export class UsersService {
     try {
       const user = await this.db.user.findUnique({
         where: { UserID: id },
-        include: { Playlists: {
-          include: { Tracks: true }
-        } }
+        include: {
+          Playlists: {
+            include: { Tracks: true }
+          },
+          Follows: true
+        }
       })
       if (user) return user;
       return undefined;
