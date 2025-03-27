@@ -165,9 +165,6 @@ export class PlaylistsService {
   }
 
   async update(id: number, updatePlaylistDto: UpdatePlaylistDto) {
-
-    console.log(updatePlaylistDto);
-
     try{
       return await this.db.playlist.update({
         where: { PlaylistID: id },
