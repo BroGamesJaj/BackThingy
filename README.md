@@ -45,9 +45,9 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-## See full documentation after running the project
+## Endpoints
 
-"http://localhost:3000/api"
+The full documentation of the endpoints can be viewed under /api after running the project
 
 ## Run tests
 
