@@ -103,6 +103,9 @@ export class UsersService {
 
     try {
       return await this.db.user.update({
+        include: {
+          Playlists: true
+        },
         where: { UserID: id },
         data: {
           Pfp: buffer,
