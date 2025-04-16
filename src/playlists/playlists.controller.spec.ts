@@ -7,11 +7,31 @@ import { ConfigService } from '@nestjs/config';
 
 describe('PlaylistsController', () => {
   let controller: PlaylistsController;
+  const mockPrismaService = {
+    create: jest.fn(),
+    findPfp: jest.fn(),
+    findOne: jest.fn(),
+    update: jest.fn(),
+  }
+
+  const mockJwtService = {
+    findPfp: jest.fn(),
+    update: jest.fn(),
+  }
+
+  const mockConfigService = {
+    findPfp: jest.fn(),
+    update: jest.fn(),
+  }
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [PlaylistsController],
-      providers: [PlaylistsService, JwtService, ConfigService, PrismaService, ],
+      providers: [PlaylistsService, 
+        { provide: PrismaService, useValue: mockPrismaService },
+        { provide: JwtService, useValue: mockJwtService },
+        { provide: ConfigService, useValue: mockConfigService },
+      ],
     }).compile();
 
     controller = module.get<PlaylistsController>(PlaylistsController);

@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
 import { PrismaService } from '../prisma.service';
+import { Followed } from 'src/followed/entities/followed.entity';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -63,9 +64,12 @@ describe('UsersService', () => {
       expect(result).toEqual(mockUser);
       expect(prisma.user.findUnique).toHaveBeenCalledWith({
         where: { UserID: 1 },
-        include: { Playlists: {
+        include: { 
+          Playlists: {
           include: { Tracks: true }
-        } }
+        },
+        Follows: true
+       }
       });
     });
 
