@@ -39,7 +39,7 @@ $ npm run test
 
 ## Test database
 
-If you don't want to create users and add data for testing, you can find a dump in the repo
+If you don't want to create users and add data for testing, you can find a dump in the repo <br>
 All the test users use the same password **testpsw**
 
 ## Authors
