@@ -42,6 +42,10 @@ $ npm run test
 If you don't want to create users and add data for testing, you can find a dump in the repo <br>
 All the test users use the same password **testpsw**
 
+## database model diagram
+
+[diagram](https://github.com/BroGamesJaj/BackThingy/wiki)
+
 ## Authors
 * [Mészáros Botond](https://github.com/MBotond21)
 * [Pásztor Botond](https://github.com/BroGamesJaj)
