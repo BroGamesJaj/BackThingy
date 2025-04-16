@@ -37,6 +37,11 @@ The full documentation of the endpoints can be viewed under /api after running t
 $ npm run test
 ```
 
+## Test database
+
+If you don't want to create users and add data for testing, you can find a dump in the repo
+All the test users use the same password **testpsw**
+
 ## Authors
 * [Mészáros Botond](https://github.com/MBotond21)
 * [Pásztor Botond](https://github.com/BroGamesJaj)
