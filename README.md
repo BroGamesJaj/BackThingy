@@ -34,5 +34,5 @@ $ npm run test
 ```
 
 ## Authors
-* [Mészáros Botond]()
+* [Mészáros Botond](https://github.com/MBotond21)
 * [Pásztor Botond](https://github.com/BroGamesJaj)
