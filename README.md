@@ -9,6 +9,10 @@ Nestjs backend for Thingy music player.
 $ npm install
 ```
 2. create a .env based on the .env.example
+3. create the database
+```bash
+$ npx prisma db push
+```
 
 ## Compile and run the project
 
